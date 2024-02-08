@@ -7,7 +7,7 @@ $db = new Database();
 $conn = $db->connect();
 
 // Uncomment the line below if you want to create the 'users' table
-// $db->createUsersTable();
+ $db->createUsersTable();
 
 $successMessage = "";
 $validationErrors = [];
