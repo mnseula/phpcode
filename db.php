@@ -121,28 +121,6 @@ class Database
         }
     }
 
-    public function createUsersTable() {
-        $query = "
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                first_name VARCHAR(255) NOT NULL,
-                last_name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                address VARCHAR(255),
-                phone VARCHAR(20),
-                password VARCHAR(255) NOT NULL
-            )
-        ";
-
-        try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->execute();
-            echo "Table 'users' created successfully";
-        } catch (PDOException $e) {
-            echo "Error creating table: " . $e->getMessage();
-        }
-    }
-
     public function connect()
     {
         return $this->conn;
