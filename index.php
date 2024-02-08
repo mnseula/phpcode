@@ -41,20 +41,22 @@ $conn = $db->connect();
             <?php
             // Fetch and display users
             $users = $db->getUsers();
-            foreach ($users as $user) {
-                echo "<tr>";
-                echo "<td>{$user['id']}</td>";
-                echo "<td>{$user['first_name']}</td>";
-                echo "<td>{$user['last_name']}</td>";
-                echo "<td>{$user['email']}</td>";
-                echo "<td>{$user['address']}</td>";
-                echo "<td>{$user['phone']}</td>";
-                echo "<td>
-                        <a href='edit_user.php?id={$user['id']}' class='btn btn-warning btn-sm'>Edit</a> 
-                        <a href='delete_user.php?id={$user['id']}' class='btn btn-danger btn-sm'>Delete</a>
-                      </td>";
-                echo "</tr>";
-            }
+            if($users) {
+            	foreach ($users as $user) {
+            	    echo "<tr>";
+            	    echo "<td>{$user['id']}</td>";
+            	    echo "<td>{$user['first_name']}</td>";
+            	    echo "<td>{$user['last_name']}</td>";
+            	    echo "<td>{$user['email']}</td>";
+            	    echo "<td>{$user['address']}</td>";
+            	    echo "<td>{$user['phone']}</td>";
+            	    echo "<td>
+            	            <a href='edit_user.php?id={$user['id']}' class='btn btn-warning btn-sm'>Edit</a> 
+            	            <a href='delete_user.php?id={$user['id']}' class='btn btn-danger btn-sm'>Delete</a>
+            	          </td>";
+            	    echo "</tr>";
+	    	}
+	    }
             ?>
         </tbody>
     </table>
