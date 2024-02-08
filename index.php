@@ -23,6 +23,11 @@ $conn = $db->connect();
 <body class="container mt-5">
 
     <h2 class="mb-4">User List</h2>
+    <form method="post">
+        <input type="text" name="search" placeholder="Search by Name, firstname, email, address, phone">
+        <button type="submit">Search</button>
+    </form>
+    <br />
 
     <table class="table table-bordered">
         <thead class="thead-dark">
@@ -40,7 +45,14 @@ $conn = $db->connect();
 
             <?php
             // Fetch and display users
-            $users = $db->getUsers();
+            //$users = $db->getUsers();
+       	 if (isset($_POST['search'])) {
+       	     $keyword = $_POST['search'];
+       	     $users = $db->searchUsers($keyword);
+       	 } else {
+         // If search form is not submitted, fetch all users
+         $users = $db->getUsers();
+       			 }
             if($users) {
             	foreach ($users as $user) {
             	    echo "<tr>";

@@ -18,6 +18,16 @@ class Database
         }
     }
 
+    public function searchUsers($keyword)
+    {
+      $stmt = $this->conn->prepare("SELECT * FROM users WHERE first_name LIKE :keyword OR last_name LIKE :keyword OR email LIKE :keyword OR address LIKE :keyword OR phone LIKE :keyword");
+            $keyword = '%' . $keyword . '%';
+            $stmt->bindParam(':keyword', $keyword, PDO::PARAM_STR);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function createUsersTable()
     {
         try {
