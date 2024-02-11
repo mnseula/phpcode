@@ -3,7 +3,7 @@ require_once 'db.php';
 
 $db = new Database();
 $conn = $db->connect();
-$db->createUsersTable();
+//$db->createUsersTable();
 
 ?>
 
