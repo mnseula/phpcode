@@ -3,9 +3,7 @@ require_once 'db.php';
 
 $db = new Database();
 $conn = $db->connect();
-
-// Uncomment the line below if you want to create the 'users' table
-// $db->createUsersTable();
+$db->createUsersTable();
 
 ?>
 
@@ -18,6 +16,11 @@ $conn = $db->connect();
     <title>User Management System</title>
     <!-- Add Bootstrap CSS link -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .wrap-text {
+            white-space: normal;
+        }
+    </style>
 </head>
 
 <body class="container mt-5">
@@ -44,31 +47,30 @@ $conn = $db->connect();
         <tbody>
 
             <?php
-            // Fetch and display users
-            //$users = $db->getUsers();
-       	 if (isset($_POST['search'])) {
-       	     $keyword = $_POST['search'];
-       	     $users = $db->searchUsers($keyword);
-       	 } else {
-         // If search form is not submitted, fetch all users
-         $users = $db->getUsers();
-       			 }
-            if($users) {
-            	foreach ($users as $user) {
-            	    echo "<tr>";
-            	    echo "<td>{$user['id']}</td>";
-            	    echo "<td>{$user['first_name']}</td>";
-            	    echo "<td>{$user['last_name']}</td>";
-            	    echo "<td>{$user['email']}</td>";
-            	    echo "<td>{$user['address']}</td>";
-            	    echo "<td>{$user['phone']}</td>";
-            	    echo "<td>
-            	            <a href='edit_user.php?id={$user['id']}' class='btn btn-warning btn-sm'>Edit</a> 
-            	            <a href='delete_user.php?id={$user['id']}' class='btn btn-danger btn-sm'>Delete</a>
-            	          </td>";
-            	    echo "</tr>";
-	    	}
-	    }
+            if (isset($_POST['search'])) {
+                $keyword = $_POST['search'];
+                $users = $db->searchUsers($keyword);
+            } else {
+                $users = $db->getUsers();
+            }
+
+            if ($users) {
+		//print "<pre>";print_r($users);exit; print "</pre>";
+                foreach ($users as $user) {
+                    echo "<tr>";
+                    echo "<td>{$user['id']}</td>";
+                    echo "<td>{$user['first_name']}</td>";
+                    echo "<td>{$user['last_name']}</td>";
+                    echo "<td class='wrap-text'>{$user['emails']}</td>";
+                    echo "<td class='wrap-text'>{$user['addresses']}</td>";
+                    echo "<td class='wrap-text'>{$user['phones']}</td>";
+                    echo "<td>
+                            <a href='edit_user.php?id={$user['id']}' class='btn btn-warning btn-sm'>Edit</a> 
+                            <a href='delete_user.php?id={$user['id']}' class='btn btn-danger btn-sm'>Delete</a>
+                          </td>";
+                    echo "</tr>";
+                }
+            }
             ?>
         </tbody>
     </table>

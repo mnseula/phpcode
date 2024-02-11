@@ -1,126 +1,125 @@
-<?php
-// Start output buffering
-ob_start();
-
-// Include the Database class
-include_once 'db.php';
-
-// Create a Database instance
-$db = new Database();
-
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve form data
-    $user_id = $_POST['user_id'];
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $address = $_POST['address'];
-    $phone = $_POST['phone'];
-
-    // Validate form data
-    if (empty($first_name) || empty($last_name) || empty($email)) {
-        echo 'Please fill out all required fields.';
-        exit();
-    }
-
-    // You can add additional validation logic here based on your requirements
-
-    // Update user in the database
-    $updateData = [
-        'first_name' => $first_name,
-        'last_name' => $last_name,
-        'email' => $email,
-        'address' => $address,
-        'phone' => $phone,
-    ];
-
-    if ($db->updateUser($user_id, $updateData)) {
-        // Clear the output buffer
-        //ob_clean();
-	ob_end_clean();
-
-        // Redirect to the index page after successful update
-        header('Location: index.php');
-        exit();
-    } else {
-        echo 'Error updating user.';
-    }
-} else {
-    // Check if user_id is set in the URL
-    if (isset($_GET['id'])) {
-        // Retrieve user details from the database
-        $user_id = $_GET['id'];
-        $user = $db->getUserById($user_id);
-
-        if (!$user) {
-            echo 'User not found.';
-            exit();
-        }
-    } else {
-        echo 'Invalid request.';
-        exit();
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User</title>
-    <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
+
 <body>
     <div class="container mt-5">
         <h2>Edit User</h2>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" onsubmit="return validateForm()">
-            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+        <?php
+        include_once "db.php";
+	$db = new Database();
+	$conn = $db->connect();
+        // Assuming you have a function to get user details based on the ID
+        $userId = $_GET['id']; // Assuming 'id' is the parameter in the URL
+        $userData = $db->getUserById($userId);
+
+        // Assuming you have a function to get user contacts based on the ID
+        $userContacts = $db->getUserContactsById($userId);
+        ?>
+
+        <form id="editUserForm" method="post" action="process_edit_user.php">
+            <!-- Include user details fields -->
+             <input type="hidden" name="userId" value="<?= $userId ?>">
             <div class="form-group">
-                <label for="first_name">First Name:</label>
-                <input type="text" class="form-control" id="first_name" name="first_name" value="<?php echo $user['first_name']; ?>" required>
+                <label for="firstName">First Name</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" value="<?= $userData['first_name'] ?>" required>
             </div>
+
             <div class="form-group">
-                <label for="last_name">Last Name:</label>
-                <input type="text" class="form-control" id="last_name" name="last_name" value="<?php echo $user['last_name']; ?>" required>
+                <label for="lastName">Last Name</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" value="<?= $userData['last_name'] ?>" required>
             </div>
+
+            <!-- Email fields -->
             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email" value="<?php echo $user['email']; ?>" required>
+                <label>Email</label>
+                <div id="emailFields">
+                    <?php foreach ($userContacts['emails'] as $email) : ?>
+                        <div class="input-group mb-3">
+                            <input type="email" class="form-control" name="emails[]" value="<?= $email ?>" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="addEmailField()">Add Email</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
+
+            <!-- Address fields -->
             <div class="form-group">
-                <label for="address">Address:</label>
-                <input type="text" class="form-control" id="address" name="address" value="<?php echo $user['address']; ?>">
+                <label>Address</label>
+                <div id="addressFields">
+                    <?php foreach ($userContacts['addresses'] as $address) : ?>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="addresses[]" value="<?= $address ?>" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="addAddressField()">Add Address</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
+
+            <!-- Phone fields -->
             <div class="form-group">
-                <label for="phone">Phone:</label>
-                <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo $user['phone']; ?>">
+                <label>Phone</label>
+                <div id="phoneFields">
+                    <?php foreach ($userContacts['phones'] as $phone) : ?>
+                        <div class="input-group mb-3">
+                            <input type="tel" class="form-control" name="phones[]" value="<?= $phone ?>" required>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="addPhoneField()">Add Phone</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Update User</button>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-success">Submit</button>
+                <a class="btn btn-secondary ml-2" href="index.php">Cancel</a>
+            </div>
         </form>
     </div>
 
-    <!-- Include Bootstrap and jQuery JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
     <script>
-        function validateForm() {
-            var firstName = document.getElementById('first_name').value;
-            var lastName = document.getElementById('last_name').value;
-            var email = document.getElementById('email').value;
+        function addEmailField() {
+            // Add a new email field
+            var emailFields = document.getElementById('emailFields');
+            var newField = emailFields.firstElementChild.cloneNode(true);
+            newField.querySelector('input').value = '';
+            emailFields.appendChild(newField);
+        }
 
-            if (firstName === '' || lastName === '' || email === '') {
-                alert('Please fill out all required fields.');
-                return false;
-            }
+        function addAddressField() {
+            // Add a new address field
+            var addressFields = document.getElementById('addressFields');
+            var newField = addressFields.firstElementChild.cloneNode(true);
+            newField.querySelector('input').value = '';
+            addressFields.appendChild(newField);
+        }
 
-            return true;
+        function addPhoneField() {
+            // Add a new phone field
+            var phoneFields = document.getElementById('phoneFields');
+            var newField = phoneFields.firstElementChild.cloneNode(true);
+            newField.querySelector('input').value = '';
+            phoneFields.appendChild(newField);
         }
     </script>
 </body>
+
 </html>
 
